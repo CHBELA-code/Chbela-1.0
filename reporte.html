@@ -41,7 +41,7 @@
 
   <section id="inventario-section" class="report-section">
     <h2>Inventario Actual</h2>
-    <button onclick="exportTableToExcel('tablaInventario', 'Inventario_Chbela')" class="export-btn">Exportar inventario a Excel</button>
+    <button onclick="exportarStockDesdeProductos()" class="export-btn">Exportar inventario a Excel</button>
     <table id="tablaInventario" class="report-table">
       <thead>
         <tr>
@@ -51,10 +51,7 @@
           <th>Existencia</th>
         </tr>
       </thead>
-      <tbody>
-        <tr><td>12345</td><td>Gaseosa Cola</td><td>500</td><td>50</td></tr>
-        <tr><td>67890</td><td>Alfajor Triple</td><td>350</td><td>120</td></tr>
-      </tbody>
+      <tbody></tbody>
     </table>
   </section>
 
@@ -87,7 +84,7 @@
     function exportarStockDesdeProductos() {
       const productos = JSON.parse(localStorage.getItem('productosChbela') || '[]');
       if (productos.length === 0) {
-        alert("No hay productos en stock para exportar.");
+        alert("No hay productos cargados.");
         return;
       }
 
@@ -102,6 +99,24 @@
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Stock General");
       XLSX.writeFile(wb, "Stock_General_Chbela.xlsx");
+    }
+
+    // Cargar inventario automáticamente desde productosChbela
+    function cargarInventarioDesdeProductos() {
+      const productos = JSON.parse(localStorage.getItem('productosChbela') || '[]');
+      const tbody = document.querySelector('#tablaInventario tbody');
+      tbody.innerHTML = "";
+
+      productos.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.codigo}</td>
+          <td>${p.descripcion}</td>
+          <td>$${parseFloat(p.precioVenta).toFixed(2)}</td>
+          <td>${p.existencia}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     // Guardar en localStorage
@@ -126,7 +141,7 @@
       });
     }
 
-    // Vaciar tabla
+    // Vaciar tabla y borrar localStorage
     function vaciarTabla(tableID, storageKey) {
       if (confirm("¿Estás seguro que quieres vaciar este reporte?")) {
         document.querySelector(`#${tableID} tbody`).innerHTML = "";
@@ -136,20 +151,34 @@
       }
     }
 
-    // Agregar venta
+    // Agregar venta y actualizar vendedores
     function agregarVenta(ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta) {
+      // Guardar venta
       const nuevaFila = [ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta];
       const ventas = JSON.parse(localStorage.getItem('ventasData')) || [];
       ventas.push(nuevaFila);
       guardarEnLocalStorage('ventasData', ventas);
       cargarTabla('ventasData', 'tablaVentas');
+
+      // Actualizar reporte de vendedores
+      actualizarVendedor(vendedor, totalVenta, cantidad);
     }
 
-    // Agregar vendedor
-    function agregarVendedor(nombre, totalVentas, ventasRealizadas, totalProductos) {
-      const nuevaFila = [nombre, totalVentas, ventasRealizadas, totalProductos];
-      const vendedores = JSON.parse(localStorage.getItem('vendedoresData')) || [];
-      vendedores.push(nuevaFila);
+    // Actualizar vendedor o agregar si no existe
+    function actualizarVendedor(nombre, totalVenta, cantidadProductos) {
+      let vendedores = JSON.parse(localStorage.getItem('vendedoresData')) || [];
+      const idx = vendedores.findIndex(v => v[0] === nombre);
+
+      if (idx >= 0) {
+        // Si ya existe, sumar
+        vendedores[idx][1] += totalVenta; // Total Ventas
+        vendedores[idx][2] += 1; // Ventas realizadas
+        vendedores[idx][3] += cantidadProductos; // Productos vendidos
+      } else {
+        // Si no existe, crear
+        vendedores.push([nombre, totalVenta, 1, cantidadProductos]);
+      }
+
       guardarEnLocalStorage('vendedoresData', vendedores);
       cargarTabla('vendedoresData', 'tablaVendedores');
     }
@@ -158,17 +187,12 @@
     window.addEventListener('DOMContentLoaded', () => {
       cargarTabla('ventasData', 'tablaVentas');
       cargarTabla('vendedoresData', 'tablaVendedores');
+      cargarInventarioDesdeProductos();
     });
 
-    // Reinicio automático cada 1ro de mes
-    window.onload = function() {
-      const hoy = new Date();
-      if (hoy.getDate() === 1) {
-        localStorage.removeItem('ventasData');
-        localStorage.removeItem('vendedoresData');
-        console.log("Se reiniciaron ventas y vendedores por ser primero de mes.");
-      }
-    }
+    // Ya no se reinicia automáticamente el día 1 del mes
+    // Solo se reinicia cuando vos presionás el botón "Vaciar"
+
   </script>
 
 </body>
