@@ -14,6 +14,7 @@
 
   <div style="text-align: center; margin-bottom: 20px;">
     <button onclick="location.href='menu.html'" class="export-btn">← Volver al menú</button>
+    <button onclick="exportarStockDesdeProductos()" class="export-btn">📦 Exportar Stock General</button>
   </div>
 
   <section id="ventas-section" class="report-section">
@@ -34,9 +35,7 @@
           <th>Total Venta</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- filas dinámicas -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </section>
 
@@ -72,18 +71,37 @@
           <th>Total Productos Vendidos</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- filas dinámicas -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </section>
 
   <script>
-    // Exportar a Excel
+    // Exportar tabla a Excel
     function exportTableToExcel(tableID, filename) {
       const table = document.getElementById(tableID);
       const wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
       XLSX.writeFile(wb, filename + ".xlsx");
+    }
+
+    // Exportar stock general desde productosChbela
+    function exportarStockDesdeProductos() {
+      const productos = JSON.parse(localStorage.getItem('productosChbela') || '[]');
+      if (productos.length === 0) {
+        alert("No hay productos en stock para exportar.");
+        return;
+      }
+
+      const datos = productos.map(p => ({
+        Código: p.codigo,
+        Descripción: p.descripcion,
+        'Precio Venta': p.precioVenta,
+        Existencia: p.existencia
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(datos);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Stock General");
+      XLSX.writeFile(wb, "Stock_General_Chbela.xlsx");
     }
 
     // Guardar en localStorage
@@ -95,7 +113,7 @@
     function cargarTabla(storageKey, tableID) {
       const data = JSON.parse(localStorage.getItem(storageKey)) || [];
       const tbody = document.querySelector(`#${tableID} tbody`);
-      tbody.innerHTML = ""; // Limpiar tabla
+      tbody.innerHTML = "";
 
       data.forEach(row => {
         const tr = document.createElement('tr');
@@ -108,7 +126,7 @@
       });
     }
 
-    // Vaciar tabla y borrar localStorage
+    // Vaciar tabla
     function vaciarTabla(tableID, storageKey) {
       if (confirm("¿Estás seguro que quieres vaciar este reporte?")) {
         document.querySelector(`#${tableID} tbody`).innerHTML = "";
@@ -118,7 +136,7 @@
       }
     }
 
-    // Agregar venta al localStorage (usar desde tu sistema real)
+    // Agregar venta
     function agregarVenta(ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta) {
       const nuevaFila = [ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta];
       const ventas = JSON.parse(localStorage.getItem('ventasData')) || [];
@@ -127,7 +145,7 @@
       cargarTabla('ventasData', 'tablaVentas');
     }
 
-    // Agregar vendedor al localStorage (usar desde tu sistema real)
+    // Agregar vendedor
     function agregarVendedor(nombre, totalVentas, ventasRealizadas, totalProductos) {
       const nuevaFila = [nombre, totalVentas, ventasRealizadas, totalProductos];
       const vendedores = JSON.parse(localStorage.getItem('vendedoresData')) || [];
@@ -136,7 +154,7 @@
       cargarTabla('vendedoresData', 'tablaVendedores');
     }
 
-    // Cargar datos al abrir la página
+    // Cargar datos al abrir
     window.addEventListener('DOMContentLoaded', () => {
       cargarTabla('ventasData', 'tablaVentas');
       cargarTabla('vendedoresData', 'tablaVendedores');
