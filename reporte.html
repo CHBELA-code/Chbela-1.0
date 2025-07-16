@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reportes Chbela</title>
+  <link rel="stylesheet" href="reporte.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📊 Reportes Chbela</h1>
+  </header>
+
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button onclick="location.href='menu.html'" class="export-btn">← Volver al menú</button>
+  </div>
+
+  <section id="ventas-section" class="report-section">
+    <h2>Reporte de Ventas</h2>
+    <button onclick="exportTableToExcel('tablaVentas', 'Reporte_Ventas')" class="export-btn">Exportar ventas a Excel</button>
+    <button onclick="vaciarTabla('tablaVentas', 'ventasData')" class="export-btn">Vaciar ventas</button>
+    <table id="tablaVentas" class="report-table">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Fecha</th>
+          <th>Vendedor</th>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+          <th>Total Venta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- filas dinámicas -->
+      </tbody>
+    </table>
+  </section>
+
+  <section id="inventario-section" class="report-section">
+    <h2>Inventario Actual</h2>
+    <button onclick="exportTableToExcel('tablaInventario', 'Inventario_Chbela')" class="export-btn">Exportar inventario a Excel</button>
+    <table id="tablaInventario" class="report-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Precio Venta</th>
+          <th>Existencia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>12345</td><td>Gaseosa Cola</td><td>500</td><td>50</td></tr>
+        <tr><td>67890</td><td>Alfajor Triple</td><td>350</td><td>120</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="vendedores-section" class="report-section">
+    <h2>Reporte de Vendedores</h2>
+    <button onclick="exportTableToExcel('tablaVendedores', 'Resumen_Vendedores')" class="export-btn">Exportar resumen a Excel</button>
+    <button onclick="vaciarTabla('tablaVendedores', 'vendedoresData')" class="export-btn">Vaciar vendedores</button>
+    <table id="tablaVendedores" class="report-table">
+      <thead>
+        <tr>
+          <th>Vendedor</th>
+          <th>Total Ventas</th>
+          <th>Ventas Realizadas</th>
+          <th>Total Productos Vendidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- filas dinámicas -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    // Exportar a Excel
+    function exportTableToExcel(tableID, filename) {
+      const table = document.getElementById(tableID);
+      const wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+      XLSX.writeFile(wb, filename + ".xlsx");
+    }
+
+    // Guardar en localStorage
+    function guardarEnLocalStorage(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    // Cargar tabla desde localStorage
+    function cargarTabla(storageKey, tableID) {
+      const data = JSON.parse(localStorage.getItem(storageKey)) || [];
+      const tbody = document.querySelector(`#${tableID} tbody`);
+      tbody.innerHTML = ""; // Limpiar tabla
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Vaciar tabla y borrar localStorage
+    function vaciarTabla(tableID, storageKey) {
+      if (confirm("¿Estás seguro que quieres vaciar este reporte?")) {
+        document.querySelector(`#${tableID} tbody`).innerHTML = "";
+        if (storageKey) {
+          localStorage.removeItem(storageKey);
+        }
+      }
+    }
+
+    // Agregar venta al localStorage (usar desde tu sistema real)
+    function agregarVenta(ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta) {
+      const nuevaFila = [ticket, fecha, vendedor, codigo, descripcion, cantidad, precio, subtotal, totalVenta];
+      const ventas = JSON.parse(localStorage.getItem('ventasData')) || [];
+      ventas.push(nuevaFila);
+      guardarEnLocalStorage('ventasData', ventas);
+      cargarTabla('ventasData', 'tablaVentas');
+    }
+
+    // Agregar vendedor al localStorage (usar desde tu sistema real)
+    function agregarVendedor(nombre, totalVentas, ventasRealizadas, totalProductos) {
+      const nuevaFila = [nombre, totalVentas, ventasRealizadas, totalProductos];
+      const vendedores = JSON.parse(localStorage.getItem('vendedoresData')) || [];
+      vendedores.push(nuevaFila);
+      guardarEnLocalStorage('vendedoresData', vendedores);
+      cargarTabla('vendedoresData', 'tablaVendedores');
+    }
+
+    // Cargar datos al abrir la página
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarTabla('ventasData', 'tablaVentas');
+      cargarTabla('vendedoresData', 'tablaVendedores');
+    });
+
+    // Reinicio automático cada 1ro de mes
+    window.onload = function() {
+      const hoy = new Date();
+      if (hoy.getDate() === 1) {
+        localStorage.removeItem('ventasData');
+        localStorage.removeItem('vendedoresData');
+        console.log("Se reiniciaron ventas y vendedores por ser primero de mes.");
+      }
+    }
+  </script>
+
+</body>
+</html>

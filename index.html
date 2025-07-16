@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chbela - Iniciar sesión</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-bg">
+        <div class="login-wrapper">
+            <div class="logo-area">
+                <img src="logo.jpeg" alt="Logo Chbela" class="logo-img">
+            </div>
+            <form class="login-form" id="loginForm">
+                <h2>
+                    Iniciar sesión en <span class="chbela-title">Chbela</span>
+                </h2>
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" required>
+                <label for="contrasena">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" required>
+                <button type="submit">Entrar</button>
+                <div style="text-align:center; margin-top:10px;">
+                    <a href="#" id="showRegister" style="color:#e91e63; font-weight:700; text-decoration:underline; font-family:'Baloo 2', 'Comic Sans MS', cursive; font-size:0.95em;">¿Crear cuenta?</a>
+                </div>
+            </form>
+            <form class="register-form" id="registerForm" style="display:none;">
+                <h2>
+                    Crear cuenta en <span class="chbela-title">Chbela</span>
+                </h2>
+                <label for="nuevoUsuario">Usuario</label>
+                <input type="text" id="nuevoUsuario" name="nuevoUsuario" required>
+                <label for="nuevaContrasena">Contraseña</label>
+                <input type="password" id="nuevaContrasena" name="nuevaContrasena" required>
+                <button type="submit">Registrar</button>
+                <div style="text-align:center; margin-top:10px;">
+                    <a href="#" id="showLogin" style="color:#4f8cff; font-weight:700; text-decoration:underline; font-family:'Baloo 2', 'Comic Sans MS', cursive; font-size:0.95em;">¿Ya tienes cuenta? Inicia sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // filepath: c:\Users\Windows 10 Pro\Desktop\NEGOCIO\index.html
+        // Mostrar/ocultar formularios
+        document.getElementById('showRegister').onclick = function(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'flex';
+        };
+        document.getElementById('showLogin').onclick = function(e) {
+            e.preventDefault();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'flex';
+        };
+
+        // Guardar usuario y contraseña al crear cuenta
+        document.getElementById('registerForm').onsubmit = function(e) {
+            e.preventDefault();
+            const usuario = document.getElementById('nuevoUsuario').value;
+            const contrasena = document.getElementById('nuevaContrasena').value;
+            localStorage.setItem('chbelaUsuario', usuario);
+            localStorage.setItem('chbelaContrasena', contrasena);
+            alert('Cuenta creada correctamente. Ahora puedes iniciar sesión.');
+            document.getElementById('registerForm').reset();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'flex';
+        };
+
+        // Verificar usuario y contraseña al iniciar sesión
+        document.getElementById('loginForm').onsubmit = function(e) {
+            e.preventDefault();
+            const usuario = document.getElementById('usuario').value;
+            const contrasena = document.getElementById('contrasena').value;
+            const guardadoUsuario = localStorage.getItem('chbelaUsuario');
+            const guardadoContrasena = localStorage.getItem('chbelaContrasena');
+            if (usuario === guardadoUsuario && contrasena === guardadoContrasena) {
+                // Redirigir al menú
+                window.location.href = "menu.html";
+            } else {
+                alert('Usuario o contraseña incorrectos.');
+            }
+        };
+    </script>
+</body>
+</html>

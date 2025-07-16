@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap');
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #aee6ff 0%, #fcb6e2 100%);
+  font-family: 'Baloo 2', 'Comic Sans MS', 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ventas-wrapper {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 12px 32px rgba(79,140,255,0.13), 0 2px 8px rgba(252,182,226,0.13);
+  padding: 38px 38px 32px 38px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.ventas-title {
+  font-size: 2.3rem;
+  color: #e91e63;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 10px #aee6ff, 0 0 2px #fff;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+input, select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #aee6ff;
+  background: #f8faff;
+  width: 100%;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: #e91e63;
+  box-shadow: 0 0 0 2px #fcb6e2;
+  outline: none;
+}
+
+.ventas-btn {
+  background: linear-gradient(90deg, #4f8cff 0%, #fcb6e2 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(252,182,226,0.13);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.12s;
+}
+
+.ventas-btn:hover {
+  background: linear-gradient(90deg, #e91e63 0%, #4f8cff 100%);
+  transform: scale(1.04);
+}
+
+.ventas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(174,230,255,0.13);
+  margin-bottom: 20px;
+}
+
+.ventas-table th {
+  background: linear-gradient(90deg, #fcb6e2 0%, #aee6ff 100%);
+  color: #4f8cff;
+  font-weight: 900;
+  padding: 14px 10px;
+  border-bottom: 2px solid #4f8cff;
+}
+
+.ventas-table td {
+  background: #f8faff;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e3f2fd;
+}
+
+.ventas-totales {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4f8cff;
+  text-align: center;
+}
+
+.valor {
+  color: #e91e63;
+  font-weight: 900;
+  margin: 0 8px;
+}
+
+/* Autocompletado estilo dulce */
+.autocomplete-suggestions {
+  position: absolute;
+  background: #fff;
+  border: 2px solid #aee6ff;
+  border-radius: 8px;
+  z-index: 1000;
+  max-height: 180px;
+  overflow-y: auto;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(79,140,255,0.13);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.autocomplete-suggestions div {
+  padding: 10px;
+  cursor: pointer;
+  color: #4f8cff;
+  transition: background 0.2s;
+}
+
+.autocomplete-suggestions div:hover {
+  background-color: #fcb6e2;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ventas-wrapper {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .ventas-title {
+    font-size: 1.5rem;
+  }
+
+  .ventas-table th, .ventas-table td {
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+
+  .ventas-totales {
+    font-size: 1rem;
+  }
+}

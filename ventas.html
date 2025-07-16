@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ventas Chbela</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="ventas.css">
+  <style>
+    .stock-agotado-venta {
+      background-color: #ffcccc !important;
+      color: #a80000 !important;
+      font-weight: 700;
+    }
+    .ventas-logo {
+      width: 50px;
+      height: auto;
+    }
+    .ventas-vendedor {
+      margin: 10px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .ventas-select {
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #aee6ff;
+      font-size: 1rem;
+    }
+
+    /* Estilos para el campo de búsqueda por descripción */
+    #buscadorDescripcion {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      border: 1px solid #aee6ff;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    #sugerenciasDescripcion {
+      border: 1px solid #aee6ff;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 0 0 10px 10px;
+      position: absolute;
+      background: white;
+      width: calc(100% - 24px);
+      z-index: 9999;
+      display: none;
+      font-size: 1rem;
+    }
+    #sugerenciasDescripcion div {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    #sugerenciasDescripcion div:hover {
+      background-color: #aee6ff;
+      color: #003366;
+    }
+    .ventas-table-container {
+      position: relative; /* Para posicionar sugerencias */
+    }
+  </style>
+</head>
+<body>
+  <div class="ventas-wrapper">
+    <div class="ventas-header">
+      <img src="logo.jpeg" alt="Logo Chbela" class="ventas-logo">
+      <div class="ventas-info">
+        <div class="ventas-title">Nueva Venta</div>
+        <div class="ventas-date">Fecha: <span id="fechaActual"></span></div>
+        <div class="ventas-ticket-num">Ticket: <span id="numeroTicket">0001</span></div>
+      </div>
+      <button class="ventas-btn volver-menu" onclick="location.href='menu.html'">← Volver al menú</button>
+    </div>
+
+    <div class="ventas-vendedor">
+      <label for="vendedorSelect">Vendedor:</label>
+      <select id="vendedorSelect" class="ventas-select">
+        <option value="">Seleccione un vendedor</option>
+      </select>
+    </div>
+
+    <!-- Campo nuevo para buscar por descripción -->
+    <div class="ventas-table-container">
+      <input type="text" id="buscadorDescripcion" placeholder="Buscar producto por descripción..." autocomplete="off" />
+      <div id="sugerenciasDescripcion"></div>
+
+      <table class="ventas-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Cant.</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- filas dinámicas -->
+        </tbody>
+      </table>
+    </div>
+
+    <button class="ventas-btn add-row-btn" id="agregarFilaBtn">+ Añadir Producto</button>
+
+    <div class="ventas-totales">
+      <div>Cantidad Total: <span class="valor" id="cantTotal">0</span></div>
+      <div>TOTAL FINAL: $<span class="valor" id="totalFinal">0.00</span></div>
+    </div>
+
+    <div class="ventas-actions">
+      <button class="ventas-btn confirmar-btn" id="confirmarVentaBtn">Confirmar Venta</button>
+      <button class="ventas-btn cancelar-btn" id="cancelarVentaBtn">Cancelar Venta</button>
+    </div>
+  </div>
+
+  <datalist id="productosList"></datalist>
+
+  <script>
+    let productosRegistrados = JSON.parse(localStorage.getItem('productosChbela') || '[]');
+
+    function llenarDatalistGlobal() {
+      const datalist = document.getElementById('productosList');
+      datalist.innerHTML = '';
+      productosRegistrados.forEach(prod => {
+        const option = document.createElement('option');
+        option.value = prod.codigo;
+        datalist.appendChild(option);
+      });
+    }
+
+    function setFechaActual() {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      document.getElementById('fechaActual').textContent = `${dd}/${mm}/${yyyy}`;
+    }
+
+    function mostrarTicketActual() {
+      let ticketNum = localStorage.getItem('lastTicketNumber');
+      if (!ticketNum) ticketNum = 0;
+      document.getElementById('numeroTicket').textContent = String(ticketNum).padStart(4, '0');
+    }
+
+    function incrementarTicket() {
+      let ticketNum = localStorage.getItem('lastTicketNumber');
+      if (!ticketNum) ticketNum = 0;
+      ticketNum = parseInt(ticketNum, 10) + 1;
+      localStorage.setItem('lastTicketNumber', ticketNum);
+      document.getElementById('numeroTicket').textContent = String(ticketNum).padStart(4, '0');
+    }
+
+    function llenarSelectVendedores() {
+      const select = document.getElementById('vendedorSelect');
+      const vendedores = JSON.parse(localStorage.getItem('vendedoresChbela') || '[]');
+      vendedores.forEach(vendedor => {
+        const option = document.createElement('option');
+        option.value = vendedor.nombre;
+        option.textContent = vendedor.nombre;
+        select.appendChild(option);
+      });
+    }
+
+    function crearFila() {
+      const tbody = document.querySelector('.ventas-table tbody');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="text" class="codigo-input" placeholder="Código" list="productosList"></td>
+        <td><input type="text" class="descripcion-input" placeholder="Descripción" readonly></td>
+        <td><input type="number" min="1" value="1" class="cantidad-input"></td>
+        <td><input type="number" min="0" step="0.01" value="0.00" class="precio-input"></td>
+        <td><input type="number" class="subtotal-input" value="0.00" readonly></td>
+        <td><button class="ventas-btn delete-row-btn">X</button></td>
+      `;
+      tbody.appendChild(newRow);
+
+      const codigoInput = newRow.querySelector('.codigo-input');
+      const descripcionInput = newRow.querySelector('.descripcion-input');
+      const cantidadInput = newRow.querySelector('.cantidad-input');
+      const precioInput = newRow.querySelector('.precio-input');
+      const deleteButton = newRow.querySelector('.delete-row-btn');
+
+      codigoInput.addEventListener('input', () => {
+        const codigoIngresado = codigoInput.value.trim();
+        const productoEncontrado = productosRegistrados.find(p => p.codigo === codigoIngresado);
+        if (productoEncontrado) {
+          descripcionInput.value = productoEncontrado.descripcion;
+          precioInput.value = parseFloat(productoEncontrado.precioVenta).toFixed(2);
+          if (parseFloat(cantidadInput.value) === 0 || cantidadInput.value === '') {
+            cantidadInput.value = 1;
+          }
+          actualizarSubtotal(newRow);
+        } else {
+          descripcionInput.value = '';
+          precioInput.value = '0.00';
+          actualizarSubtotal(newRow);
+        }
+      });
+
+      cantidadInput.addEventListener('input', () => actualizarSubtotal(newRow));
+      precioInput.addEventListener('input', () => actualizarSubtotal(newRow));
+      deleteButton.addEventListener('click', () => eliminarFila(newRow));
+
+      actualizarTotales();
+    }
+
+    function eliminarFila(row) {
+      row.remove();
+      actualizarTotales();
+    }
+
+    function actualizarSubtotal(row) {
+      const cantidad = parseFloat(row.querySelector('.cantidad-input').value) || 0;
+      const precio = parseFloat(row.querySelector('.precio-input').value) || 0;
+      const subtotal = cantidad * precio;
+      row.querySelector('.subtotal-input').value = subtotal.toFixed(2);
+      actualizarTotales();
+    }
+
+    function actualizarTotales() {
+      const filas = document.querySelectorAll('.ventas-table tbody tr');
+      let totalCantidad = 0;
+      let totalPrecio = 0;
+      filas.forEach(fila => {
+        const cantidad = parseInt(fila.querySelector('.cantidad-input').value) || 0;
+        const subtotal = parseFloat(fila.querySelector('.subtotal-input').value) || 0;
+        totalCantidad += cantidad;
+        totalPrecio += subtotal;
+      });
+      document.getElementById('cantTotal').textContent = totalCantidad;
+      document.getElementById('totalFinal').textContent = totalPrecio.toFixed(2);
+    }
+
+    function mostrarAdvertenciaStock(producto) {
+      alert(`¡Atención! El producto "${producto.descripcion}" (Código: ${producto.codigo}) se ha agotado.`);
+    }
+
+    // NUEVO: Búsqueda por descripción con autocompletado
+    const inputDescripcion = document.getElementById('buscadorDescripcion');
+    const sugerenciasDiv = document.getElementById('sugerenciasDescripcion');
+
+    inputDescripcion.addEventListener('input', () => {
+      const texto = inputDescripcion.value.trim().toLowerCase();
+      if (texto.length === 0) {
+        sugerenciasDiv.style.display = 'none';
+        sugerenciasDiv.innerHTML = '';
+        return;
+      }
+      // Filtrar productos cuyo nombre contenga el texto
+      const resultados = productosRegistrados.filter(p =>
+        p.descripcion.toLowerCase().includes(texto)
+      ).slice(0, 10); // Limitar a 10 resultados
+
+      if (resultados.length === 0) {
+        sugerenciasDiv.style.display = 'none';
+        sugerenciasDiv.innerHTML = '';
+        return;
+      }
+
+      sugerenciasDiv.innerHTML = '';
+      resultados.forEach(prod => {
+        const div = document.createElement('div');
+        div.textContent = `${prod.descripcion} (Código: ${prod.codigo})`;
+        div.addEventListener('click', () => {
+          // Insertar datos en la última fila creada o crear fila si no hay
+          let tbody = document.querySelector('.ventas-table tbody');
+          let filas = tbody.querySelectorAll('tr');
+          let fila;
+          if (filas.length === 0) {
+            crearFila();
+            filas = tbody.querySelectorAll('tr');
+          }
+          fila = filas[filas.length - 1];
+
+          // Llenar inputs con datos del producto
+          fila.querySelector('.codigo-input').value = prod.codigo;
+          fila.querySelector('.descripcion-input').value = prod.descripcion;
+          fila.querySelector('.precio-input').value = parseFloat(prod.precioVenta).toFixed(2);
+          fila.querySelector('.cantidad-input').value = 1;
+          actualizarSubtotal(fila);
+
+          // Limpiar búsqueda
+          inputDescripcion.value = '';
+          sugerenciasDiv.style.display = 'none';
+          sugerenciasDiv.innerHTML = '';
+        });
+        sugerenciasDiv.appendChild(div);
+      });
+
+      sugerenciasDiv.style.display = 'block';
+    });
+
+    // Ocultar sugerencias si clic afuera
+    document.addEventListener('click', (e) => {
+      if (!sugerenciasDiv.contains(e.target) && e.target !== inputDescripcion) {
+        sugerenciasDiv.style.display = 'none';
+      }
+    });
+
+    document.getElementById('agregarFilaBtn').addEventListener('click', () => {
+      crearFila();
+    });
+
+    document.getElementById('confirmarVentaBtn').addEventListener('click', () => {
+      const filas = document.querySelectorAll('.ventas-table tbody tr');
+      if (filas.length === 0) {
+        alert('No hay productos en la venta.');
+        return;
+      }
+
+      const vendedorSeleccionado = document.getElementById('vendedorSelect').value;
+      if (!vendedorSeleccionado) {
+        alert('Por favor, seleccione un vendedor antes de confirmar la venta.');
+        return;
+      }
+
+      const ventaActual = {
+        ticket: document.getElementById('numeroTicket').textContent,
+        fecha: document.getElementById('fechaActual').textContent,
+        vendedor: vendedorSeleccionado,
+        productos: [],
+        total: parseFloat(document.getElementById('totalFinal').textContent)
+      };
+
+      let errorStock = false;
+      let productosAgotados = [];
+
+      filas.forEach(fila => {
+        const codigo = fila.querySelector('.codigo-input').value.trim();
+        const descripcion = fila.querySelector('.descripcion-input').value.trim();
+        const cantidad = parseInt(fila.querySelector('.cantidad-input').value) || 0;
+        const precio = parseFloat(fila.querySelector('.precio-input').value) || 0;
+        const subtotal = parseFloat(fila.querySelector('.subtotal-input').value) || 0;
+
+        if (!codigo || !descripcion || cantidad <= 0 || precio <= 0) {
+          alert('Hay productos con datos incompletos o inválidos.');
+          errorStock = true;
+          return;
+        }
+
+        const productoIndex = productosRegistrados.findIndex(p => p.codigo === codigo);
+        if (productoIndex === -1) {
+          alert(`Producto con código ${codigo} no encontrado en el inventario.`);
+          errorStock = true;
+          return;
+        }
+
+        if (productosRegistrados[productoIndex].existencia < cantidad) {
+          alert(`Stock insuficiente para el producto ${descripcion} (Código: ${codigo}). Stock disponible: ${productosRegistrados[productoIndex].existencia}`);
+          errorStock = true;
+          return;
+        }
+
+        ventaActual.productos.push({ codigo, descripcion, cantidad, precio, subtotal });
+        productosRegistrados[productoIndex].existencia -= cantidad;
+
+        if (productosRegistrados[productoIndex].existencia <= 0) {
+          productosAgotados.push(productosRegistrados[productoIndex]);
+        }
+      });
+
+      if (errorStock) return;
+
+      const ventasHistorial = JSON.parse(localStorage.getItem('ventasChbelaHistorial') || '[]');
+      ventasHistorial.push(ventaActual);
+      localStorage.setItem('ventasChbelaHistorial', JSON.stringify(ventasHistorial));
+      localStorage.setItem('productosChbela', JSON.stringify(productosRegistrados));
+      productosAgotados.forEach(prod => mostrarAdvertenciaStock(prod));
+
+      alert('Venta confirmada y stock actualizado!');
+      incrementarTicket();
+      document.querySelector('.ventas-table tbody').innerHTML = '';
+      actualizarTotales();
+      crearFila();
+      llenarDatalistGlobal();
+    });
+
+    document.getElementById('cancelarVentaBtn').addEventListener('click', () => {
+      if (confirm('¿Deseas cancelar la venta actual? Se perderán los datos ingresados.')) {
+        document.querySelector('.ventas-table tbody').innerHTML = '';
+        actualizarTotales();
+        crearFila();
+      }
+    });
+
+    window.onload = () => {
+      llenarDatalistGlobal();
+      setFechaActual();
+      mostrarTicketActual();
+      llenarSelectVendedores();
+      crearFila();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos Chbela</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="productos.css">
+    <style>
+      .stock-agotado {
+        background-color: #ffcccc !important;
+        color: #a80000 !important;
+        font-weight: 700;
+      }
+    </style>
+</head>
+<body>
+    <div class="productos-bg">
+        <div class="productos-wrapper">
+            <img src="logo.jpeg" alt="Logo Chbela" class="productos-logo">
+            <div class="productos-title">Productos</div>
+            <button class="productos-btn volver-menu" onclick="location.href='menu.html'">← Volver al menú</button>
+
+            <div style="width:100%; display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;">
+                <select id="tipoBusqueda" style="padding:8px; border-radius:8px; border:1px solid #aee6ff;">
+                    <option value="nombre">Nombre</option>
+                    <option value="codigo">Código</option>
+                </select>
+                <input type="text" id="buscador" placeholder="Buscar producto..." style="flex:1; padding:8px; border-radius:8px; border:1px solid #aee6ff;">
+                <select id="filtroRubro" style="padding:8px; border-radius:8px; border:1px solid #aee6ff;">
+                    <option value="todos">Todos los rubros</option>
+                </select>
+                <button type="button" class="productos-btn" id="abrirModal">Añadir producto</button>
+                <button class="productos-btn" onclick="location.href='importar-stock.html'">📥 Importar desde Excel</button>
+            </div>
+
+            <table class="productos-table" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Rubro</th>
+                        <th>Existencia</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th class="th-ganancia">Ganancia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="productos-footer">Gestiona tus productos fácilmente.</div>
+        </div>
+    </div>
+
+    <!-- Modal para añadir/editar producto -->
+    <div id="modalProducto" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(79,140,255,0.13); padding:32px 24px; min-width:280px; max-width:90vw;">
+            <form id="formProducto">
+                <div style="font-size:1.2em; font-weight:700; color:#4f8cff; margin-bottom:12px;" id="modalTitulo">Añadir producto</div>
+                <input type="text" id="codigo" placeholder="Código" required style="width:100%; margin-bottom:10px; padding:8px;">
+                <input type="text" id="descripcion" placeholder="Descripción" required style="width:100%; margin-bottom:10px; padding:8px;">
+                <input type="text" id="rubro" placeholder="Rubro" required style="width:100%; margin-bottom:10px; padding:8px;">
+                <input type="number" id="existencia" placeholder="Existencia" required min="0" style="width:100%; margin-bottom:10px; padding:8px;">
+                <input type="number" id="precioCompra" placeholder="Precio de compra" required min="0" step="0.01" style="width:100%; margin-bottom:10px; padding:8px;">
+                <input type="number" id="precioVenta" placeholder="Precio de venta" required min="0" step="0.01" style="width:100%; margin-bottom:10px; padding:8px;">
+                <div style="display:flex; gap:8px; justify-content:flex-end;">
+                    <button type="submit" class="productos-btn" id="guardarBtn">Guardar</button>
+                    <button type="button" class="productos-btn delete" id="cerrarModal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let productos = JSON.parse(localStorage.getItem('productosChbela') || '[]');
+        let editIndex = null;
+
+        function calcularGanancia(precioCompra, precioVenta) {
+            if (precioCompra <= 0) return "0%";
+            const ganancia = ((precioVenta - precioCompra) / precioCompra) * 100;
+            return ganancia.toFixed(2) + "%";
+        }
+
+        function renderProductos() {
+            const tbody = document.querySelector('#tablaProductos tbody');
+            const filtro = document.getElementById('buscador').value.toLowerCase();
+            const tipo = document.getElementById('tipoBusqueda').value;
+            const rubroSeleccionado = document.getElementById('filtroRubro').value;
+            tbody.innerHTML = '';
+            productos.forEach((prod, idx) => {
+                let campo = tipo === 'codigo' ? prod.codigo : prod.descripcion;
+                if (
+                    campo.toLowerCase().includes(filtro) &&
+                    (rubroSeleccionado === 'todos' || prod.rubro === rubroSeleccionado)
+                ) {
+                    const claseStock = prod.existencia === 0 ? 'stock-agotado' : '';
+                    tbody.innerHTML += `
+                        <tr class="${claseStock}">
+                            <td>${prod.codigo}</td>
+                            <td>${prod.descripcion}</td>
+                            <td>${prod.rubro}</td>
+                            <td>${prod.existencia}</td>
+                            <td>$${parseFloat(prod.precioCompra).toFixed(2)}</td>
+                            <td>$${parseFloat(prod.precioVenta).toFixed(2)}</td>
+                            <td>${calcularGanancia(prod.precioCompra, prod.precioVenta)}</td>
+                            <td>
+                                <button class="productos-btn edit" onclick="editarProducto(${idx})">Editar</button>
+                                <button class="productos-btn delete" onclick="eliminarProducto(${idx})">Eliminar</button>
+                            </td>
+                        </tr>`;
+                }
+            });
+        }
+
+        function actualizarRubrosDisponibles() {
+            const select = document.getElementById('filtroRubro');
+            const rubros = [...new Set(productos.map(p => p.rubro))].sort();
+            select.innerHTML = '<option value="todos">Todos los rubros</option>';
+            rubros.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r;
+                option.textContent = r;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('buscador').oninput = renderProductos;
+        document.getElementById('tipoBusqueda').onchange = renderProductos;
+        document.getElementById('filtroRubro').onchange = renderProductos;
+
+        document.getElementById('abrirModal').onclick = function() {
+            document.getElementById('modalProducto').style.display = 'flex';
+            document.getElementById('modalTitulo').textContent = 'Añadir producto';
+            document.getElementById('formProducto').reset();
+            document.getElementById('codigo').removeAttribute('readonly');
+            editIndex = null;
+        };
+
+        document.getElementById('cerrarModal').onclick = function() {
+            document.getElementById('modalProducto').style.display = 'none';
+        };
+
+        document.getElementById('formProducto').onsubmit = function(e) {
+            e.preventDefault();
+            const codigo = document.getElementById('codigo').value.trim();
+            const descripcion = document.getElementById('descripcion').value.trim();
+            const rubro = document.getElementById('rubro').value.trim();
+            const existencia = parseInt(document.getElementById('existencia').value);
+            const precioCompra = parseFloat(document.getElementById('precioCompra').value);
+            const precioVenta = parseFloat(document.getElementById('precioVenta').value);
+
+            if (!codigo || !descripcion || !rubro || isNaN(existencia) || isNaN(precioCompra) || isNaN(precioVenta)) return;
+
+            const nuevoProducto = { codigo, descripcion, rubro, existencia, precioCompra, precioVenta };
+
+            if (editIndex !== null) {
+                productos[editIndex] = nuevoProducto;
+                editIndex = null;
+            } else {
+                const existe = productos.some(p => p.codigo === codigo);
+                if (existe) return alert('Ya existe un producto con ese código');
+                productos.push(nuevoProducto);
+            }
+
+            localStorage.setItem('productosChbela', JSON.stringify(productos));
+            actualizarRubrosDisponibles();
+            renderProductos();
+            this.reset();
+            document.getElementById('modalProducto').style.display = 'none';
+        };
+
+        window.editarProducto = function(idx) {
+            const p = productos[idx];
+            document.getElementById('modalProducto').style.display = 'flex';
+            document.getElementById('modalTitulo').textContent = 'Editar producto';
+            document.getElementById('codigo').value = p.codigo;
+            document.getElementById('codigo').setAttribute('readonly', 'readonly');
+            document.getElementById('descripcion').value = p.descripcion;
+            document.getElementById('rubro').value = p.rubro;
+            document.getElementById('existencia').value = p.existencia;
+            document.getElementById('precioCompra').value = p.precioCompra;
+            document.getElementById('precioVenta').value = p.precioVenta;
+            editIndex = idx;
+        };
+
+        window.eliminarProducto = function(idx) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                productos.splice(idx, 1);
+                localStorage.setItem('productosChbela', JSON.stringify(productos));
+                actualizarRubrosDisponibles();
+                renderProductos();
+            }
+        };
+
+        document.getElementById('modalProducto').onclick = function(e) {
+            if (e.target === this) this.style.display = 'none';
+        };
+
+        actualizarRubrosDisponibles();
+        renderProductos();
+    </script>
+</body>
+</html>

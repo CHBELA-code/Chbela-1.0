@@ -1,0 +1,253 @@
+/* Estilo mejorado para Chbela */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap');
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #aee6ff 0%, #fcb6e2 100%);
+    font-family: 'Baloo 2', 'Comic Sans MS', 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-bg {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-wrapper {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(79,140,255,0.13), 0 2px 8px rgba(252,182,226,0.13);
+    padding: 32px 28px 28px 28px;
+    max-width: 400px;
+    width: 95vw;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-wrapper::before,
+.login-wrapper::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    z-index: 0;
+}
+.login-wrapper::before {
+    top: -40px;
+    right: -40px;
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, #fcb6e2 30%, transparent 70%);
+    opacity: 0.18;
+}
+.login-wrapper::after {
+    bottom: -40px;
+    left: -40px;
+    width: 120px;
+    height: 70px;
+    background: radial-gradient(circle, #aee6ff 30%, transparent 70%);
+    opacity: 0.14;
+}
+
+.logo-area {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 50%;
+    box-shadow: 0 4px 24px rgba(252,182,226,0.18), 0 2px 8px rgba(174,230,255,0.13);
+    background: #fff;
+    border: 2px solid #4f8cff;
+    margin-bottom: 12px;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.chbela-title {
+    font-size: 2rem;
+    color: #e91e63;
+    font-family: 'Baloo 2', 'Comic Sans MS', cursive, Arial, sans-serif;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 8px #aee6ff, 0 0 2px #fff;
+    text-align: center;
+    margin-bottom: 12px;
+    z-index: 1;
+}
+
+.login-form,
+.register-form {
+    background: linear-gradient(90deg, #fcb6e2 0%, #aee6ff 100%);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(252,182,226,0.13);
+    padding: 18px 14px 14px 14px;
+    margin-bottom: 18px;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.login-form label,
+.register-form label {
+    font-weight: 700;
+    color: #4f8cff;
+    margin-bottom: 2px;
+    font-size: 1em;
+}
+
+.login-form input,
+.register-form input {
+    border: 2px solid #aee6ff;
+    border-radius: 8px;
+    padding: 8px 11px;
+    font-size: 1.05rem;
+    font-family: inherit;
+    background: #fff;
+    margin-bottom: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form input:focus,
+.register-form input:focus {
+    border-color: #e91e63;
+    outline: none;
+    box-shadow: 0 0 0 2px #fcb6e2;
+}
+
+.login-form button,
+.register-form button {
+    margin-top: 8px;
+    font-size: 1.08rem;
+    background: linear-gradient(90deg, #4f8cff 0%, #fcb6e2 100%);
+    border-radius: 10px;
+    padding: 10px 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(252,182,226,0.13);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.12s;
+    border: none;
+    color: #fff;
+}
+
+.login-form button:hover,
+.register-form button:hover {
+    background: linear-gradient(90deg, #e91e63 0%, #4f8cff 100%);
+    transform: translateY(-2px) scale(1.04);
+}
+
+.login-form a,
+.register-form a {
+    font-weight: 700;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 0.95em;
+    cursor: pointer;
+}
+
+.login-form a {
+    color: #e91e63;
+}
+
+.register-form a {
+    color: #4f8cff;
+}
+
+.productos-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+    z-index: 1;
+}
+
+.producto-card {
+    background: linear-gradient(90deg, #fcb6e2 0%, #aee6ff 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(252,182,226,0.13);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+    font-size: 1.05rem;
+    color: #4f8cff;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.producto-card:hover {
+    transform: scale(1.03);
+}
+
+.producto-nombre {
+    flex: 2;
+    color: #e91e63;
+    font-weight: 700;
+    font-size: 1em;
+}
+
+.producto-stock {
+    flex: 1;
+    color: #00bfae;
+    font-weight: 600;
+    text-align: right;
+    font-size: 1em;
+}
+
+.productos-footer {
+    text-align: center;
+    color: #4f8cff;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    font-family: inherit;
+}
+
+@media (max-width: 600px) {
+    .login-wrapper {
+        max-width: 98vw;
+        padding: 12px 2vw 12px 2vw;
+        border-radius: 14px;
+    }
+    .logo-area {
+        width: 40px;
+        height: 40px;
+    }
+    .chbela-title {
+        font-size: 1.2rem;
+    }
+    .login-form,
+    .register-form {
+        padding: 8px 4px 8px 4px;
+        border-radius: 10px;
+    }
+    .producto-card {
+        font-size: 0.9rem;
+        padding: 8px;
+        gap: 8px;
+    }
+    .productos-footer {
+        font-size: 0.95rem;
+    }
+}

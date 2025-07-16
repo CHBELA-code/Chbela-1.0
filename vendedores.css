@@ -1,0 +1,77 @@
+/* vendedores.css */
+body {
+  margin: 0;
+  font-family: 'Baloo 2', cursive, sans-serif;
+  background: linear-gradient(135deg, #aee6ff 0%, #fcb6e2 100%);
+}
+
+.vendedores-wrapper {
+  max-width: 500px;
+  margin: 32px auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(79, 140, 255, 0.13);
+  padding: 24px;
+}
+
+.vendedores-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.vendedores-header h1 {
+  font-size: 1.5rem;
+  color: #e91e63;
+}
+
+.volver-link {
+  text-decoration: none;
+  color: #4f8cff;
+  font-weight: bold;
+}
+
+.form-section input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #aee6ff;
+}
+
+.form-section button {
+  background: linear-gradient(90deg, #4f8cff 0%, #fcb6e2 100%);
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.lista-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.lista-section li {
+  background: #f8f8f8;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lista-section button {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}

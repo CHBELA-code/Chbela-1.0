@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú Chbela</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fuente Baloo 2 -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #aee6ff 0%, #fcb6e2 100%);
+            font-family: 'Baloo 2', 'Comic Sans MS', 'Segoe UI', Arial, sans-serif;
+        }
+        .menu-bg {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-wrapper {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 6px 24px rgba(79,140,255,0.13), 0 2px 8px rgba(252,182,226,0.13);
+            padding: 20px 28px 16px 28px; /* Menos padding vertical para que sea más corto */
+            min-width: 25vw; /* Más ancho, casi todo el ancho de pantalla */
+            width: 100%;
+            margin: 1px auto; /* Menos margen vertical */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menu-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+            box-shadow: 0 3px 16px rgba(252,182,226,0.18), 0 1px 4px rgba(174,230,255,0.13);
+            background: #fff;
+            border: 2px solid #4f8cff;
+            margin-bottom: 12px;
+        }
+        .menu-title {
+            font-size: 1.5rem;
+            color: #e91e63;
+            font-family: 'Baloo 2', 'Comic Sans MS', cursive, Arial, sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 4px #aee6ff, 0 0 1px #fff;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .menu-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column; /* Vertical */
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .menu-btn {
+            width: 100%;
+            padding: 18px 0; /* Altura cómoda */
+            border: none;
+            border-radius: 10px;
+            font-size: 1.25rem;
+            font-family: 'Baloo 2', 'Comic Sans MS', cursive, Arial, sans-serif;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, #4f8cff 0%, #fcb6e2 100%);
+            box-shadow: 0 1px 4px rgba(252,182,226,0.13);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .menu-btn:hover {
+            background: linear-gradient(90deg, #fcb6e2 0%, #4f8cff 100%);
+            transform: translateY(-1px) scale(1.03);
+        }
+        .menu-icon {
+            font-size: 2rem;
+            margin-right: 6px;
+        }
+        .menu-footer {
+            text-align: center;
+            color: #4f8cff;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            font-family: 'Baloo 2', 'Comic Sans MS', cursive, Arial, sans-serif;
+        }
+        @media (max-width: 600px) {
+            .menu-wrapper {
+                max-width: 98vw;
+                padding: 8px 2vw 8px 2vw;
+                border-radius: 10px;
+            }
+            .menu-logo {
+                width: 36px;
+                height: 36px;
+            }
+            .menu-title {
+                font-size: 1rem;
+            }
+            .menu-btn {
+                font-size: 0.85rem;
+                padding: 7px 0;
+                border-radius: 7px;
+                gap: 6px;
+            }
+            .menu-list {
+                gap: 6px;
+            }
+            .menu-footer {
+                font-size: 0.85rem;
+                margin-top: 6px;
+            }
+        }
+    </style>
+    <!-- Puedes usar iconos SVG o emojis para los botones -->
+</head>
+<body>
+    <div class="menu-bg">
+        <div class="menu-wrapper">
+            <img src="logo.jpeg" alt="Logo Chbela" class="menu-logo">
+            <div class="menu-list">
+                <button class="menu-btn" onclick="location.href='productos.html'">🍬 Stock / Artículos</button>
+                <button class="menu-btn"  onclick="location.href='estadisticas.html'">📊 Estadísticas</button>
+                <button class="menu-btn"  onclick="location.href='vendedores.html'">👥 Vendedores</button>
+                <button class="menu-btn"onclick="location.href='reporte.html'">📊 Reportes</button>
+                <button class="menu-btn" onclick="location.href='ventas.html'">🛒 Ventas</button>
+                <button class="menu-btn" onclick="location.href='index.html'">🔄 Cambio de Usuario</button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

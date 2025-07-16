@@ -1,0 +1,73 @@
+<!-- vendedores.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendedores Chbela</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendedores.css">
+</head>
+<body>
+  <div class="vendedores-wrapper">
+    <div class="vendedores-header">
+      <h1>👥 Vendedores</h1>
+      <a href="menu.html" class="volver-link">← Volver al menú</a>
+    </div>
+
+    <div class="form-section">
+      <h2>Registrar nuevo vendedor</h2>
+      <form id="formVendedor">
+        <input type="text" placeholder="Nombre completo" id="nombre" required>
+        <input type="text" placeholder="Teléfono" id="telefono" required>
+        <input type="email" placeholder="Email" id="email" required>
+        <button type="submit">Registrar</button>
+      </form>
+    </div>
+
+    <div class="lista-section">
+      <h2>Lista de vendedores</h2>
+      <ul id="listaVendedores"></ul>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('formVendedor');
+    const lista = document.getElementById('listaVendedores');
+    let vendedores = JSON.parse(localStorage.getItem('vendedoresChbela') || '[]');
+
+    function renderVendedores() {
+      lista.innerHTML = '';
+      vendedores.forEach((v, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${v.nombre} - ${v.telefono} - ${v.email}`;
+        const eliminarBtn = document.createElement('button');
+        eliminarBtn.textContent = '❌';
+        eliminarBtn.onclick = () => {
+          vendedores.splice(i, 1);
+          localStorage.setItem('vendedoresChbela', JSON.stringify(vendedores));
+          renderVendedores();
+        };
+        li.appendChild(eliminarBtn);
+        lista.appendChild(li);
+      });
+    }
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const nuevo = {
+        nombre: document.getElementById('nombre').value.trim(),
+        telefono: document.getElementById('telefono').value.trim(),
+        email: document.getElementById('email').value.trim()
+      };
+      if (!nuevo.nombre || !nuevo.telefono || !nuevo.email) return;
+      vendedores.push(nuevo);
+      localStorage.setItem('vendedoresChbela', JSON.stringify(vendedores));
+      form.reset();
+      renderVendedores();
+    };
+
+    renderVendedores();
+  </script>
+</body>
+</html>

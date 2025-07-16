@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Estadísticas de Ventas - Chbela</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estadisticas.css" />
+</head>
+<body>
+  <div class="estadisticas-wrapper">
+    <h1 class="titulo">📊 Estadísticas de Ventas</h1>
+
+    <div class="filtros">
+      <label>Desde: <input type="date" id="fechaDesde"></label>
+      <label>Hasta: <input type="date" id="fechaHasta"></label>
+      <label>Vendedor:
+        <select id="filtroVendedor">
+          <option value="todos">Todos</option>
+        </select>
+      </label>
+      <button id="filtrarBtn">🔍 Filtrar</button>
+    </div>
+
+    <div id="resultados">
+      <h2>Ventas Filtradas</h2>
+      <div id="resumenVentas"></div>
+      <table id="tablaVentas">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Fecha</th>
+            <th>Vendedor</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ventas dinámicas -->
+        </tbody>
+      </table>
+    </div>
+
+    <button onclick="location.href='menu.html'" class="volver">← Volver al menú</button>
+  </div>
+
+  <!-- Modal Detalle Venta -->
+  <div id="modalDetalle" class="modal" style="display:none;">
+    <div class="modal-contenido">
+      <h3>🧾 Detalle de Venta</h3>
+      <div id="detalleContenido"></div>
+      <button onclick="cerrarModal()" class="btn-cerrar">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    function cargarVendedores() {
+      const vendedores = JSON.parse(localStorage.getItem("vendedoresChbela") || "[]");
+      const select = document.getElementById("filtroVendedor");
+      vendedores.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.nombre;
+        opt.textContent = v.nombre;
+        select.appendChild(opt);
+      });
+    }
+
+    function mostrarDetalle(ticket) {
+      const ventas = JSON.parse(localStorage.getItem("ventasChbelaHistorial") || "[]");
+      const venta = ventas.find(v => v.ticket === ticket);
+      if (!venta) return;
+
+      let html = `<p><strong>Fecha:</strong> ${venta.fecha}</p>`;
+      html += `<p><strong>Vendedor:</strong> ${venta.vendedor || 'No especificado'}</p>`;
+      html += `<table class="tabla-detalle"><thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>`;
+
+      venta.productos.forEach(p => {
+        html += `<tr>
+          <td>${p.codigo}</td>
+          <td>${p.descripcion}</td>
+          <td>${p.cantidad}</td>
+          <td>$${p.precio.toFixed(2)}</td>
+          <td>$${p.subtotal.toFixed(2)}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      html += `<p><strong>Total:</strong> $${venta.total.toFixed(2)}</p>`;
+
+      document.getElementById("detalleContenido").innerHTML = html;
+      document.getElementById("modalDetalle").style.display = "flex";
+    }
+
+    function cerrarModal() {
+      document.getElementById("modalDetalle").style.display = "none";
+    }
+
+    function filtrarVentas() {
+      const desde = new Date(document.getElementById("fechaDesde").value);
+      const hasta = new Date(document.getElementById("fechaHasta").value);
+      const vendedorSeleccionado = document.getElementById("filtroVendedor").value;
+
+      if (!desde || !hasta || isNaN(desde) || isNaN(hasta)) {
+        alert("Debes seleccionar un rango de fechas válido.");
+        return;
+      }
+
+      if (hasta > new Date()) {
+        alert("La fecha 'hasta' no puede ser posterior a hoy.");
+        return;
+      }
+
+      const ventas = JSON.parse(localStorage.getItem("ventasChbelaHistorial") || "[]");
+      const tabla = document.querySelector("#tablaVentas tbody");
+      const resumen = document.getElementById("resumenVentas");
+
+      tabla.innerHTML = "";
+      resumen.innerHTML = "";
+
+      let totalFiltrado = 0;
+      let cantidadFiltrada = 0;
+
+      ventas.forEach(v => {
+        const fechaVenta = new Date(v.fecha.split("/").reverse().join("-"));
+        const vendedor = v.vendedor || "No especificado";
+
+        const coincideFecha = fechaVenta >= desde && fechaVenta <= hasta;
+        const coincideVendedor = vendedorSeleccionado === "todos" || vendedor === vendedorSeleccionado;
+
+        if (coincideFecha && coincideVendedor) {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `
+            <td>${v.ticket}</td>
+            <td>${v.fecha}</td>
+            <td>${vendedor}</td>
+            <td>$${v.total.toFixed(2)}</td>
+            <td><button onclick="mostrarDetalle('${v.ticket}')">👁 Ver</button></td>
+          `;
+          tabla.appendChild(fila);
+          totalFiltrado += v.total;
+          cantidadFiltrada++;
+        }
+      });
+
+      resumen.innerHTML = `<strong>Total de Ventas:</strong> $${totalFiltrado.toFixed(2)}<br><strong>Cantidad de Tickets:</strong> ${cantidadFiltrada}`;
+    }
+
+    document.getElementById("filtrarBtn").addEventListener("click", filtrarVentas);
+
+    window.onload = () => {
+      cargarVendedores();
+
+      const hoy = new Date().toISOString().split("T")[0];
+      document.getElementById("fechaHasta").setAttribute("max", hoy);
+      document.getElementById("fechaHasta").value = hoy;
+    };
+  </script>
+</body>
+</html>
